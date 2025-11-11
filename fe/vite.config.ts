@@ -64,6 +64,7 @@ export default defineConfig({
       "127.0.0.1",
       "0.0.0.0",
       "localhost:8888",
+      "http://isc-p4t8.onrender.com",
     ],
     fs: {
       // Allow serving files from one level up to the project root
