@@ -63,9 +63,43 @@ const connectDB = async () => {
 
 // Stripe column is already defined in User model, no need for manual ALTER TABLE
 
+// Create admin user if not exists
+const createAdminUser = async () => {
+  try {
+    const { User } = require('./models');
+    
+    const adminData = {
+      email: 'admin@example.com',
+      password: 'Admin@123',
+      firstName: 'Admin',
+      lastName: 'User',
+      role: 'admin',
+      isEmailVerified: true,
+      isActive: true,
+    };
+
+    // Check if admin already exists
+    const existingAdmin = await User.findOne({
+      where: { email: adminData.email },
+    });
+
+    if (!existingAdmin) {
+      await User.create(adminData);
+      logger.info('✅ Admin user created successfully');
+      logger.info(`📧 Email: ${adminData.email}`);
+      logger.info(`🔑 Password: ${adminData.password}`);
+    } else {
+      logger.info('ℹ️ Admin user already exists');
+    }
+  } catch (error) {
+    logger.error('❌ Error creating admin user:', error.message);
+  }
+};
+
 // Start server
 const startServer = async () => {
   await connectDB();
+  await createAdminUser();
 
   const PORT = process.env.PORT || 8888;
   const server = app.listen(PORT, () => {
