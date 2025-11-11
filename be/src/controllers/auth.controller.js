@@ -49,26 +49,26 @@ const login = async (req, res, next) => {
     // Find user
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      throw new AppError('Email hoặc mật khẩu không đúng', 401);
+      throw new AppError('Email hoặc mật khẩu không đúng', 400);
     }
 
     // Check if email is verified
     if (!user.isEmailVerified) {
-      throw new AppError('Vui lòng xác thực email trước khi đăng nhập', 401);
+      throw new AppError('Vui lòng xác thực email trước khi đăng nhập', 400);
     }
 
     // Check if account is active
     if (!user.isActive) {
       throw new AppError(
         'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên',
-        401
+        400
       );
     }
 
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      throw new AppError('Email hoặc mật khẩu không đúng', 401);
+      throw new AppError('Email hoặc mật khẩu không đúng', 400);
     }
 
     // Generate JWT token
