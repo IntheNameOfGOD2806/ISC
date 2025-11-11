@@ -31,11 +31,10 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
       process.env.FRONTEND_URL,
     ].filter(Boolean)
   : [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:5175',
-    ];
+      'https://isc-nu.vercel.app',
+      'https://isc-p4t8.onrender.com',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean)
 
 app.use(
   cors({
