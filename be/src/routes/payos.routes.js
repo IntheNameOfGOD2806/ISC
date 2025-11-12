@@ -29,8 +29,8 @@ router.post('/create-payment-link', async (req, res) => {
     });
 
     const {
-      // orderCode,
-      // amount,
+      orderCode,
+      amount,
       description,
       returnUrl,
       cancelUrl, 
