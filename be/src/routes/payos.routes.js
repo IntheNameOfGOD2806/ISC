@@ -39,12 +39,12 @@ router.post('/create-payment-link', async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!productName || !price) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'productName and price are required'
-      });
-    }
+    // if (!productName || !price) {
+    //   return res.status(400).json({
+    //     status: 'error',
+    //     message: 'productName and price are required'
+    //   });
+    // }
 
     const result = await payosService.createPaymentLink({
       orderCode,
