@@ -57,8 +57,8 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
         amount: amount,
         productName: productName,
         price: Number(amount),
-        returnUrl: process.env.REACT_APP_RETURN_URL,
-        cancelUrl: process.env.REACT_APP_CANCEL_URL,
+        returnUrl: import.meta.env.REACT_APP_RETURN_URL,
+        cancelUrl: import.meta.env.REACT_APP_CANCEL_URL,
       };
 
       const response = await createPaymentLink(body);
