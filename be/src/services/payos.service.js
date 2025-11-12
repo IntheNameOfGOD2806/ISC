@@ -3,16 +3,34 @@ const crypto = require('crypto');
 
 class PayOSService {
   constructor() {
-    this.clientId = process.env.PAYOS_CLIENT_ID;
-    this.apiKey = process.env.PAYOS_API_KEY;
-    this.checksumKey = process.env.PAYOS_CHECKSUM_KEY;
+    this.clientId = process.env.PAYOS_CLIENT_ID?.trim();
+    this.apiKey = process.env.PAYOS_API_KEY?.trim();
+    this.checksumKey = process.env.PAYOS_CHECKSUM_KEY?.trim();
     this.baseURL = 'https://api-merchant.payos.vn';
+    
+    console.log('PayOS Service initialized with:', {
+      hasClientId: !!this.clientId,
+      hasApiKey: !!this.apiKey,
+      hasChecksumKey: !!this.checksumKey,
+      clientId: this.clientId ? `${this.clientId.substring(0, 8)}...` : 'undefined',
+      apiKey: this.apiKey ? `${this.apiKey.substring(0, 8)}...` : 'undefined',
+      checksumKey: this.checksumKey ? `${this.checksumKey.substring(0, 8)}...` : 'undefined'
+    });
+    
+    // Validate required credentials
+    if (!this.clientId || !this.apiKey || !this.checksumKey) {
+      console.warn('PayOS credentials not configured. Please set PAYOS_CLIENT_ID, PAYOS_API_KEY, and PAYOS_CHECKSUM_KEY in environment variables.');
+    }
   }
 
   /**
    * Generate signature for PayOS API requests
    */
   generateSignature(data) {
+    if (!this.checksumKey) {
+      throw new Error('PayOS checksum key is not configured');
+    }
+    
     const sortedKeys = Object.keys(data).sort();
     const signatureString = sortedKeys
       .map(key => `${key}=${data[key]}`)
@@ -29,6 +47,14 @@ class PayOSService {
    */
   async createPaymentLink(orderData) {
     try {
+      // Check if credentials are configured
+      if (!this.clientId || !this.apiKey || !this.checksumKey) {
+        return {
+          success: false,
+          error: 'PayOS credentials not configured. Please set PAYOS_CLIENT_ID, PAYOS_API_KEY, and PAYOS_CHECKSUM_KEY environment variables.'
+        };
+      }
+
       const {
         orderCode,
         amount,

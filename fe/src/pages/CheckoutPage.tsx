@@ -27,6 +27,7 @@ import { cartApi, useGetCartCountQuery } from '@/services/cartApi';
 const CheckoutPage: React.FC = () => {
   const { t } = useTranslation();
   const { items } = useSelector((state: RootState) => state.cart);
+  console.log('items', items)
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -714,6 +715,7 @@ const CheckoutPage: React.FC = () => {
                   </>
                 ) : (
                   <PayOSPayment
+                    productName={'Thanh toán đơn hàng'}
                     orderId={currentOrder.id}
                     amount={isRepayingOrder ? currentOrder.total : total}
                     description={`Thanh toán đơn hàng ${currentOrder.id}`}

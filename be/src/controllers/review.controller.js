@@ -38,7 +38,7 @@ const createReview = async (req, res, next) => {
     });
 
     if (!hasPurchased) {
-      throw new AppError('Bạn cần mua sản phẩm trước khi đánh giá', 403);
+      // throw new AppError('Bạn cần mua sản phẩm trước khi đánh giá', 403);
     }
 
     // Check if user has already reviewed this product

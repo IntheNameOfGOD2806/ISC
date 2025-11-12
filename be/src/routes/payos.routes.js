@@ -3,9 +3,31 @@ const router = express.Router();
 const payosService = require('../services/payos.service');
 const { authenticate } = require('../middlewares/authenticate');
 
+// Test endpoint to check PayOS configuration
+router.get('/test-config', (req, res) => {
+  res.json({
+    status: 'success',
+    data: {
+      hasClientId: !!process.env.PAYOS_CLIENT_ID,
+      hasApiKey: !!process.env.PAYOS_API_KEY,
+      hasChecksumKey: !!process.env.PAYOS_CHECKSUM_KEY,
+      clientIdLength: process.env.PAYOS_CLIENT_ID ? process.env.PAYOS_CLIENT_ID.length : 0,
+      apiKeyLength: process.env.PAYOS_API_KEY ? process.env.PAYOS_API_KEY.length : 0,
+      checksumKeyLength: process.env.PAYOS_CHECKSUM_KEY ? process.env.PAYOS_CHECKSUM_KEY.length : 0,
+    }
+  });
+});
+
 // Create payment link (authenticated)
 router.post('/create-payment-link', async (req, res) => {
   try {
+    console.log('PayOS create payment link request:', {
+      body: req.body,
+      hasClientId: !!process.env.PAYOS_CLIENT_ID,
+      hasApiKey: !!process.env.PAYOS_API_KEY,
+      hasChecksumKey: !!process.env.PAYOS_CHECKSUM_KEY
+    });
+
     const {
       orderCode,
       amount,
@@ -31,6 +53,8 @@ router.post('/create-payment-link', async (req, res) => {
       cancelUrl,
       items
     });
+
+    console.log('PayOS service result:', result);
 
     if (result.success) {
       res.status(200).json({

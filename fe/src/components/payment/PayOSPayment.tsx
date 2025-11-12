@@ -8,6 +8,7 @@ import { formatPrice } from '@/utils/format';
 interface PayOSPaymentProps {
   orderId: string;
   amount: number;
+  productName: string;
   description: string;
   onSuccess: (paymentData: any) => void;
   onError: (error: string) => void;
@@ -27,7 +28,8 @@ interface PaymentLinkData {
 const PayOSPayment: React.FC<PayOSPaymentProps> = ({
   orderId,
   amount,
-  description,
+  productName,
+  description,  
   onSuccess,
   onError,
   onCancel
@@ -49,22 +51,17 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
   const createPayment = async () => {
     setLoading(true);
     try {
-      const paymentRequest = {
-        orderCode: parseInt(orderId) || Date.now(),
-        amount: Math.round(amount),
-        description: description || `Thanh toán đơn hàng ${orderId}`,
-        returnUrl: `${window.location.origin}/checkout/success`,
-        cancelUrl: `${window.location.origin}/checkout/cancel`,
-        items: [
-          {
-            name: description || `Đơn hàng ${orderId}`,
-            quantity: 1,
-            price: Math.round(amount)
-          }
-        ]
+        const body = {
+        description: description,
+        orderId: orderId,
+        amount: amount,
+        productName: productName,
+        price: Number(amount),
+        returnUrl: process.env.REACT_APP_RETURN_URL,
+        cancelUrl: process.env.REACT_APP_CANCEL_URL,
       };
 
-      const response = await createPaymentLink(paymentRequest);
+      const response = await createPaymentLink(body);
       
       if (response.error) {
         throw new Error(response.error);

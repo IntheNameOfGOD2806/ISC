@@ -4,15 +4,15 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8888/api'
 const PAYOS_ORDER_URL = import.meta.env.REACT_APP_ORDER_URL || 'http://localhost:8888';
 
 export interface PaymentLinkRequest {
-  orderCode: number;
-  amount: number;
-  description: string;
-  returnUrl: string;
-  cancelUrl: string;
-  items: Array<{
-    name: string;
-    quantity: number;
-    price: number;
+  orderCode?: number;
+  amount?: number;
+  description?: string;
+  returnUrl?: string;
+  cancelUrl?: string;
+  items?: Array<{
+    name?: string;
+    quantity?: number;
+    price?: number;
   }>;
 }
 
