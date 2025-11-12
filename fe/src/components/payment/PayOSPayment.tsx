@@ -26,7 +26,7 @@ interface PaymentLinkData {
 }
 
 const PayOSPayment: React.FC<PayOSPaymentProps> = ({
-  orderId,
+  // orderId,
   amount,
   productName,
   description,  
@@ -52,7 +52,8 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
     setLoading(true);
     try {
         const body = {
-        orderCode: orderId as string,
+          // random number
+        orderCode: Math.floor(Math.random() * 1000000),
         description: description,
         // orderId: orderId,
         amount: amount,
