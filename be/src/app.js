@@ -23,24 +23,10 @@ app.use(
   })
 );
 
-// Enable CORS
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [
-      'https://isc-nu.vercel.app',
-      'https://isc-p4t8.onrender.com',
-      'localhost:5175/',
-      process.env.FRONTEND_URL,
-    ].filter(Boolean)
-  : [
-      'https://isc-nu.vercel.app',
-      'https://isc-p4t8.onrender.com',
-      'localhost:5175',
-      process.env.FRONTEND_URL,
-    ].filter(Boolean)
-
+// Enable CORS - Allow all origins
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: true, // Allow all origins
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
