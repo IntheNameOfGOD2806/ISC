@@ -47,13 +47,13 @@ router.post('/create-payment-link', async (req, res) => {
     }
 
     const result = await payosService.createPaymentLink({
-      // orderCode,
-      // amount,
+      orderCode,
+      amount,
       description,
       returnUrl,
       cancelUrl,
-      productName,
-      price
+      // productName,
+      // price
     });
 
     console.log('PayOS service result:', result);

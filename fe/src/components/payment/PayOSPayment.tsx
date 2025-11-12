@@ -26,7 +26,7 @@ interface PaymentLinkData {
 }
 
 const PayOSPayment: React.FC<PayOSPaymentProps> = ({
-  // orderId,
+  orderId,
   amount,
   productName,
   description,  
@@ -52,12 +52,19 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
     setLoading(true);
     try {
         const body = {
-        // orderCode: orderId as string,
+        orderCode: orderId as string,
         description: description,
         // orderId: orderId,
-        // amount: amount,
-        productName: productName,
-        price: Number(amount),
+        amount: amount,
+        // productName: productName,
+        // price: Number(amount),
+        // items: [
+        //   {
+        //     name: productName,
+        //     quantity: 1,
+        //     price: amount
+        //   }
+        // ],
         returnUrl: import.meta.env.VITE_RETURN_URL || `${window.location.origin}/checkout/success`,
         cancelUrl: import.meta.env.VITE_CANCEL_URL || `${window.location.origin}/checkout/cancel`,
       };
