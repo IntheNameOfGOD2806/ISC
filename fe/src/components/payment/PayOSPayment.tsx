@@ -52,6 +52,7 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
     setLoading(true);
     try {
         const body = {
+        orderCode: orderId as string,
         description: description,
         orderId: orderId,
         amount: amount,
