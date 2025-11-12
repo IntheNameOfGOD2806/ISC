@@ -87,6 +87,23 @@ app.use(compression());
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// PayOS webhook routes (before /api middleware to avoid conflicts)
+const orderController = require('./controllers/order.controller');
+
+// Test route to verify webhook is accessible
+app.get('/api/webhook/payos', (req, res) => {
+  res.json({ 
+    status: 'success', 
+    message: 'PayOS webhook endpoint is accessible',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Actual webhook routes
+app.post('/api/webhook/payos', orderController.handleWebhook);
+app.post('/api/webhooks/payos', orderController.handleWebhook);
+app.post('/api/orders/HandleWebhook', orderController.handleWebhook);
+
 // API routes
 app.use('/api', routes);
 

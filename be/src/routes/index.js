@@ -19,13 +19,6 @@ const warrantyPackageRoutes = require('./warrantyPackages');
 const attributeRoutes = require('./attributeRoutes');
 const imageRoutes = require('./image.routes');
 
-// Import order controller for webhook
-const orderController = require('../controllers/order.controller');
-
-// Global webhook routes (before any other routes to avoid middleware conflicts)
-router.post('/webhook/payos', orderController.handleWebhook);
-router.post('/webhooks/payos', orderController.handleWebhook);
-
 // API routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
