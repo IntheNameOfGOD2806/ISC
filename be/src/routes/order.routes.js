@@ -9,6 +9,10 @@ const {
 const { authenticate } = require('../middlewares/authenticate');
 const { authorize } = require('../middlewares/authorize');
 
+// Public routes (no authentication required)
+// PayOS webhook - https://isc-p4t8.onrender.com/api/order/HandleWebhook
+router.post('/HandleWebhook', orderController.handleWebhook);
+
 // User routes (authenticated)
 router.use(authenticate);
 router.post(

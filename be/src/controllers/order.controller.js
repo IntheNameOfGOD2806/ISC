@@ -9,6 +9,7 @@ const {
 } = require('../models');
 const { AppError } = require('../middlewares/errorHandler');
 const emailService = require('../services/email/emailService');
+const crypto = require('crypto');
 
 // Create order from cart
 const createOrder = async (req, res, next) => {
@@ -575,6 +576,191 @@ const repayOrder = async (req, res, next) => {
   }
 };
 
+/**
+ * Handle PayOS webhook notifications
+ */
+const handleWebhook = async (req, res, next) => {
+  const transaction = await sequelize.transaction();
+  
+  try {
+    console.log('PayOS Webhook received:', {
+      headers: req.headers,
+      body: req.body,
+      timestamp: new Date().toISOString()
+    });
+
+    const webhookData = req.body;
+    
+    // Verify webhook signature (PayOS security)
+    const signature = req.body.signature;
+    const checksumKey = process.env.PAYOS_CHECKSUM_KEY;
+    
+    if (checksumKey && signature) {
+      // Create signature verification data (exclude signature from the data)
+      const { signature: _, ...dataToVerify } = webhookData;
+      const expectedSignature = crypto
+        .createHmac('sha256', checksumKey)
+        .update(JSON.stringify(dataToVerify))
+        .digest('hex');
+      
+      if (signature !== expectedSignature) {
+        console.error('Invalid PayOS webhook signature');
+        return res.status(401).json({
+          status: 'error',
+          message: 'Invalid signature'
+        });
+      }
+    }
+
+    // Check if webhook is successful
+    if (!webhookData.success || webhookData.code !== "00") {
+      console.log('PayOS webhook indicates unsuccessful payment:', webhookData);
+      return res.status(200).json({
+        status: 'success',
+        message: 'Webhook received but payment not successful'
+      });
+    }
+
+    // Extract payment information from webhook data
+    const paymentData = webhookData.data;
+    const {
+      orderCode,
+      amount,
+      description,
+      accountNumber,
+      reference,
+      transactionDateTime,
+      virtualAccountName,
+      virtualAccountNumber,
+      counterAccountBankId,
+      counterAccountBankName,
+      counterAccountName,
+      counterAccountNumber,
+      paymentLinkId
+    } = paymentData;
+
+    console.log('Processing PayOS webhook for orderCode:', orderCode);
+
+    // Find order by orderCode (assuming orderCode maps to order ID or number)
+    let order = await Order.findOne({
+      where: {
+        id: orderCode
+      }
+    });
+
+    // If not found by ID, try to find by order number
+    if (!order) {
+      order = await Order.findOne({
+        where: {
+          number: orderCode
+        }
+      });
+    }
+
+    // If still not found, try to find by a custom payos_order_code field if it exists
+    if (!order) {
+      // You might need to add a payos_order_code field to your Order model
+      order = await Order.findOne({
+        where: {
+          payosOrderCode: orderCode
+        }
+      });
+    }
+
+    if (!order) {
+      console.error('Order not found for orderCode:', orderCode);
+      return res.status(404).json({
+        status: 'error',
+        message: 'Order not found'
+      });
+    }
+
+    // Update order status based on webhook data
+    const updateData = {
+      paymentStatus: 'completed',
+      status: 'processing', // Move to processing after successful payment
+      paymentMethod: 'payos',
+      paymentDetails: {
+        transactionId: reference,
+        paymentDate: transactionDateTime,
+        amount: amount,
+        paymentLinkId: paymentLinkId,
+        bankInfo: {
+          accountNumber: counterAccountNumber,
+          accountName: counterAccountName,
+          bankId: counterAccountBankId,
+          bankName: counterAccountBankName
+        },
+        payosData: paymentData, // Store the payment data from webhook
+        webhookReceived: new Date().toISOString()
+      }
+    };
+
+    await order.update(updateData, { transaction });
+
+    // Log the payment transaction
+    console.log('Payment completed for order:', {
+      orderId: order.id,
+      orderNumber: order.number,
+      amount: amount,
+      transactionId: reference,
+      paymentDate: transactionDateTime
+    });
+
+    await transaction.commit();
+
+    // Send payment confirmation email
+    try {
+      if (order.userId) {
+        // Get user email - you might need to include user in the query above
+        const orderWithUser = await Order.findByPk(order.id, {
+          include: [{
+            association: 'user',
+            attributes: ['email', 'firstName', 'lastName']
+          }]
+        });
+
+        if (orderWithUser && orderWithUser.user) {
+          await emailService.sendPaymentConfirmationEmail(orderWithUser.user.email, {
+            orderNumber: order.number,
+            amount: amount,
+            transactionId: reference,
+            paymentDate: transactionDateTime,
+            customerName: `${orderWithUser.user.firstName} ${orderWithUser.user.lastName}`
+          });
+        }
+      }
+    } catch (emailError) {
+      console.error('Failed to send payment confirmation email:', emailError);
+      // Don't fail the webhook for email errors
+    }
+
+    // Respond to PayOS that webhook was processed successfully
+    res.status(200).json({
+      status: 'success',
+      message: 'Webhook processed successfully',
+      data: {
+        orderId: order.id,
+        orderNumber: order.number,
+        paymentStatus: order.paymentStatus,
+        status: order.status
+      }
+    });
+
+  } catch (error) {
+    await transaction.rollback();
+    console.error('PayOS webhook processing error:', error);
+    
+    // Still return 200 to PayOS to avoid retries for application errors
+    // Log the error for investigation
+    res.status(200).json({
+      status: 'error',
+      message: 'Webhook processing failed',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getUserOrders,
@@ -584,4 +770,5 @@ module.exports = {
   getAllOrders,
   updateOrderStatus,
   repayOrder,
+  handleWebhook,
 };

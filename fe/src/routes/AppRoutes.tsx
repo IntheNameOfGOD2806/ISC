@@ -18,6 +18,7 @@ const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
 const VerifyEmailPage = lazy(() => import('@/pages/VerifyEmailPage'));
+const PaymentResultPage = lazy(() => import('@/pages/PaymentResultPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const OrdersPage = lazy(() => import('@/pages/OrdersPage'));
 // Wishlist feature removed
@@ -121,6 +122,8 @@ const AppRoutes: React.FC = () => {
             }
           />
           <Route path="verify-email/:token" element={<VerifyEmailPage />} />
+          <Route path="checkout/success" element={<PaymentResultPage />} />
+          <Route path="checkout/cancel" element={<PaymentResultPage />} />
 
           {/* Protected routes (require authentication) */}
           <Route

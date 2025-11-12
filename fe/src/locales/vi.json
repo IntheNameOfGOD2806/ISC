@@ -341,7 +341,7 @@
     "paymentMethod": {
       "title": "Phương Thức Thanh Toán",
       "selectLabel": "Chọn Phương Thức Thanh Toán",
-      "creditCard": "Thẻ Tín Dụng",
+      "creditCard": "Thanh toán COD",
       "paypal": "PayPal",
       "bankTransfer": "Chuyển Khoản Ngân Hàng"
     },

@@ -16,6 +16,7 @@ import Select from '@/components/common/Select';
 import CartItem from '@/components/features/CartItem';
 import StripePaymentForm from '@/components/payment/StripePaymentForm';
 import BankTransferQR from '@/components/payment/BankTransferQR';
+import PayOSPayment from '@/components/payment/PayOSPayment';
 import { RootState } from '@/store';
 import { clearCart, initializeCart, addItem } from '@/features/cart/cartSlice';
 import { addNotification } from '@/features/ui/uiSlice';
@@ -126,6 +127,7 @@ const CheckoutPage: React.FC = () => {
   // Payment methods with i18n
   const paymentMethods = [
     { value: 'stripe', label: t('checkout.paymentMethod.creditCard') },
+    { value: 'payos', label: 'PayOS (Chuyển khoản ngân hàng)' },
     { value: 'bank_transfer', label: t('checkout.paymentMethod.bankTransfer') },
   ];
 
@@ -694,6 +696,38 @@ const CheckoutPage: React.FC = () => {
             {/* Other payment methods info */}
             {/* PayPal section removed */}
 
+            {formData.paymentMethod === 'payos' && (
+              <div className="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                {!currentOrder ? (
+                  <>
+                    <h4 className="font-semibold text-neutral-800 dark:text-neutral-100 mb-2">
+                      PayOS - Thanh toán chuyển khoản
+                    </h4>
+                    <div className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+                      <p className="text-blue-700 dark:text-blue-300 font-medium">
+                        Vui lòng tạo đơn hàng trước để nhận link thanh toán PayOS
+                      </p>
+                      <p>
+                        PayOS sẽ tạo mã QR và link thanh toán an toàn cho bạn
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <PayOSPayment
+                    orderId={currentOrder.id}
+                    amount={isRepayingOrder ? currentOrder.total : total}
+                    description={`Thanh toán đơn hàng ${currentOrder.id}`}
+                    onSuccess={handlePaymentSuccess}
+                    onError={handlePaymentError}
+                    onCancel={() => {
+                      setCurrentOrder(null);
+                      setFormData(prev => ({ ...prev, paymentMethod: 'stripe' }));
+                    }}
+                  />
+                )}
+              </div>
+            )}
+
             {formData.paymentMethod === 'bank_transfer' && (
               <div className="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
                 {!currentOrder ? (
@@ -819,6 +853,21 @@ const CheckoutPage: React.FC = () => {
                 className="w-full mt-6 h-14 text-lg font-semibold"
               >
                 Tôi đã thanh toán
+              </PremiumButton>
+            )}
+
+            {/* Create Order Button for PayOS */}
+            {formData.paymentMethod === 'payos' && !currentOrder && (
+              <PremiumButton
+                variant="primary"
+                size="large"
+                iconType="arrow-right"
+                isProcessing={isProcessing}
+                processingText="Đang tạo đơn hàng..."
+                onClick={handleStripeOrderCreation} // Reuse the same function for creating order
+                className="w-full mt-6 h-14 text-lg font-semibold"
+              >
+                Tạo đơn hàng và thanh toán PayOS
               </PremiumButton>
             )}
 
