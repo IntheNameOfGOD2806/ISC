@@ -28,11 +28,13 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   ? [
       'https://isc-nu.vercel.app',
       'https://isc-p4t8.onrender.com',
+      'http://localhost:5175/',
       process.env.FRONTEND_URL,
     ].filter(Boolean)
   : [
       'https://isc-nu.vercel.app',
       'https://isc-p4t8.onrender.com',
+      'http://localhost:5175',
       process.env.FRONTEND_URL,
     ].filter(Boolean)
 
