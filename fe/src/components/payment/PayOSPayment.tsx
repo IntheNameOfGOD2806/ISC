@@ -26,7 +26,7 @@ interface PaymentLinkData {
 }
 
 const PayOSPayment: React.FC<PayOSPaymentProps> = ({
-  orderId,
+  // orderId,
   amount,
   productName,
   description,  
@@ -52,10 +52,10 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
     setLoading(true);
     try {
         const body = {
-        orderCode: orderId as string,
+        // orderCode: orderId as string,
         description: description,
-        orderId: orderId,
-        amount: amount,
+        // orderId: orderId,
+        // amount: amount,
         productName: productName,
         price: Number(amount),
         returnUrl: import.meta.env.REACT_APP_RETURN_URL,
@@ -86,10 +86,10 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
     }
   };
 
-  const startPolling = (orderCode: number) => {
+  const startPolling = (orderCode: string) => {
     const interval = setInterval(async () => {
       try {
-        const orderStatus = await getPayOSOrder(orderCode.toString());
+        const orderStatus = await getPayOSOrder(orderCode);
         
         if (orderStatus.data) {
           const status = orderStatus.data.status;
@@ -155,6 +155,7 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
 
   const openPaymentLink = () => {
     if (paymentData?.checkoutUrl) {
+      // alert(234244)
       window.open(paymentData.checkoutUrl, '_blank');
     }
   };
