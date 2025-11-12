@@ -4,7 +4,7 @@ const payosService = require('../services/payos.service');
 const { authenticate } = require('../middlewares/authenticate');
 
 // Create payment link (authenticated)
-router.post('/create-payment-link', authenticate, async (req, res) => {
+router.post('/create-payment-link', async (req, res) => {
   try {
     const {
       orderCode,

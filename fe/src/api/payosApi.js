@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-const PAYOS_ORDER_URL = import.meta.env.REACT_APP_ORDER_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://isc-p4t8.onrender.com/api';
+const PAYOS_ORDER_URL = import.meta.env.REACT_APP_ORDER_URL || 'https://isc-p4t8.onrender.com';
 
 export async function createPaymentLink(orderData) {
   try {
