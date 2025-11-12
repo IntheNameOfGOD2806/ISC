@@ -1,21 +1,21 @@
-const axios = require("axios");
-const crypto = require("crypto");
+const axios = require('axios');
+const crypto = require('crypto');
 
 // Import PayOS SDK
-let payOS;
+// let payOS;
 
-try {
-  const PayOS = require("@payos/node");
-  payOS = new PayOS(
-    process.env.PAYOS_CLIENT_ID,
-    process.env.PAYOS_API_KEY,
-    process.env.PAYOS_CHECKSUM_KEY
-  );
-  console.log("PayOS SDK initialized successfully");
-} catch (error) {
-  console.warn("PayOS SDK not available:", error.message);
-  console.warn("Falling back to manual API calls");
-}
+// try {
+//   const PayOS =  require('@payos/node');
+//   payOS = new PayOS(
+//     process.env.PAYOS_CLIENT_ID,
+//     process.env.PAYOS_API_KEY,
+//     process.env.PAYOS_CHECKSUM_KEY
+//   );
+//   console.log('PayOS SDK initialized successfully');
+// } catch (error) {
+//   console.warn('PayOS SDK not available dsfsf:', error.message);
+//   console.warn('Falling back to manual API calls');
+// }
 class PayOSService {
   constructor() {
     this.clientId = process.env.PAYOS_CLIENT_ID?.trim();
@@ -92,34 +92,69 @@ class PayOSService {
         description: description || `Payment for order ${orderCode}`,
         returnUrl: returnUrl || `${process.env.FRONTEND_URL}/checkout/success`,
         cancelUrl: cancelUrl || `${process.env.FRONTEND_URL}/checkout/cancel`,
-        // items: items.map(item => ({
-        //   name: item.name,
-        //   quantity: parseInt(item.quantity),
-        //   price: parseInt(item.price)
-        // }))
-      };
-      console.log("paymentData", paymentData);
-      // Check if PayOS SDK is available
-      if (!payOS) {
-        return {
-          success: false,
-          error: "PayOS SDK not available. Please install @payos/node package.",
-        };
-      }
-
-      const response = await payOS.createPaymentLink({
-        ...paymentData,
-      });
-
-      return !!response?.checkoutUrl
-        ? {
-            success: true,
-            data: response,
+        items: [
+          {
+            name: description || `Order ${orderCode}`,
+            quantity: 1,
+            price: parseInt(amount)
           }
-        : {
-            success: false,
-            error: "PayOS create payment link error: " + response?.status,
-          };
+        ]
+      };
+
+      // Generate signature according to PayOS spec: amount=$amount&cancelUrl=$cancelUrl&description=$description&orderCode=$orderCode&returnUrl=$returnUrl
+      const signaturePayload = `amount=${paymentData.amount}&cancelUrl=${paymentData.cancelUrl}&description=${paymentData.description}&orderCode=${paymentData.orderCode}&returnUrl=${paymentData.returnUrl}`;
+      const paymentSignature = crypto
+        .createHmac('sha256', this.checksumKey)
+        .update(signaturePayload)
+        .digest('hex');
+
+      // Add signature to payment data
+      paymentData.signature = paymentSignature;
+
+      console.log('PayOS Payment Data:', JSON.stringify(paymentData, null, 2));
+      console.log('Signature Payload:', signaturePayload);
+      console.log('Generated Signature:', paymentSignature);
+
+      // Try using PayOS SDK first, fallback to manual API call
+      // if (payOS) {
+      //   try {
+      //     const response = await payOS.createPaymentLink({
+      //       ...paymentData,
+      //     });
+
+      //     return !!response?.checkoutUrl
+      //       ? {
+      //           success: true,
+      //           data: response,
+      //         }
+      //       : {
+      //           success: false,
+      //           error: "PayOS create payment link error: " + response?.status,
+      //         };
+      //   } catch (sdkError) {
+      //     console.warn('PayOS SDK failed, falling back to manual API:', sdkError.message);
+      //   }
+      // }
+
+      // Fallback to manual API call - PayOS signature is already included in paymentData
+      console.log('Using manual PayOS API call with payload:', paymentData);
+
+      const response = await axios.post(
+        `${this.baseURL}/v2/payment-requests`,
+        paymentData,
+        {
+          headers: {
+            'x-client-id': this.clientId,
+            'x-api-key': this.apiKey,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data
+      };
     } catch (error) {
       console.error(
         "PayOS create payment link error:",

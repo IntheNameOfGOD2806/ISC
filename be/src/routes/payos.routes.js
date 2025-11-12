@@ -20,6 +20,7 @@ router.get('/test-config', (req, res) => {
 
 // Create payment link (authenticated)
 router.post('/create-payment-link', async (req, res) => {
+  // console.log(2342422)
   try {
     console.log('PayOS create payment link request:', {
       body: req.body,
