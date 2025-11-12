@@ -58,9 +58,17 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
         // amount: amount,
         productName: productName,
         price: Number(amount),
-        returnUrl: import.meta.env.REACT_APP_RETURN_URL,
-        cancelUrl: import.meta.env.REACT_APP_CANCEL_URL,
+        returnUrl: import.meta.env.VITE_RETURN_URL || `${window.location.origin}/checkout/success`,
+        cancelUrl: import.meta.env.VITE_CANCEL_URL || `${window.location.origin}/checkout/cancel`,
       };
+
+      console.log('PayOS Payment Body:', body);
+      console.log('Environment Variables:', {
+        VITE_RETURN_URL: import.meta.env.VITE_RETURN_URL,
+        VITE_CANCEL_URL: import.meta.env.VITE_CANCEL_URL,
+        REACT_APP_RETURN_URL: import.meta.env.REACT_APP_RETURN_URL,
+        REACT_APP_CANCEL_URL: import.meta.env.REACT_APP_CANCEL_URL,
+      });
 
       const response = await createPaymentLink(body);
       
