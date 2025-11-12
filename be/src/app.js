@@ -91,7 +91,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 const orderController = require('./controllers/order.controller');
 
 // Test route to verify webhook is accessible
-app.get('/api/webhook/payos', (req, res) => {
+app.post('/api/webhook/payos', (req, res) => {
   res.json({ 
     status: 'success', 
     message: 'PayOS webhook endpoint is accessible',
