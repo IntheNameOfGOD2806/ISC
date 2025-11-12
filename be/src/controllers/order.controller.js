@@ -580,6 +580,14 @@ const repayOrder = async (req, res, next) => {
  * Handle PayOS webhook notifications
  */
 const handleWebhook = async (req, res, next) => {
+  console.log('=== PayOS WEBHOOK RECEIVED ===');
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  console.log('Original URL:', req.originalUrl);
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+  console.log('=== END WEBHOOK DEBUG ===');
+
   const transaction = await sequelize.transaction();
   
   try {

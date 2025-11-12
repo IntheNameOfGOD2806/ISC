@@ -718,7 +718,7 @@ const CheckoutPage: React.FC = () => {
                     productName={'Thanh toán đơn hàng'}
                     orderId={currentOrder.id}
                     amount={isRepayingOrder ? currentOrder.total : total}
-                    description={`Thanh toán đơn hàng ${currentOrder.id}`}
+                    description={`Thanh toán đơn hàng`}
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
                     onCancel={() => {

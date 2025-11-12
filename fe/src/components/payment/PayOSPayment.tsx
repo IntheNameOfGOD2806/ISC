@@ -16,13 +16,15 @@ interface PayOSPaymentProps {
 }
 
 interface PaymentLinkData {
-  checkoutUrl: string;
-  qrCode: string;
-  paymentLinkId: string;
-  orderCode: number;
-  accountNumber?: string;
-  accountName?: string;
-  bin?: string;
+  data: {
+    checkoutUrl: string;
+    qrCode: string;
+    paymentLinkId: string;
+    orderCode: number;
+    accountNumber?: string;
+    accountName?: string;
+    bin?: string;
+  }
 }
 
 const PayOSPayment: React.FC<PayOSPaymentProps> = ({
@@ -36,6 +38,7 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [paymentData, setPaymentData] = useState<PaymentLinkData | null>(null);
+  console.log('paymentData', paymentData);
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'processing' | 'success' | 'failed' | 'cancelled'>('pending');
   const [showQRModal, setShowQRModal] = useState(false);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
@@ -56,7 +59,7 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
         orderCode: Math.floor(Math.random() * 1000000),
         description: description,
         // orderId: orderId,
-        amount: amount,
+        amount: 20000,
         // productName: productName,
         // price: Number(amount),
         // items: [
@@ -147,9 +150,9 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
   };
 
   const handleCancel = async () => {
-    if (paymentData?.orderCode) {
+    if (paymentData?.data?.orderCode) {
       try {
-        await cancelPayOSOrder(paymentData.orderCode.toString());
+        await cancelPayOSOrder(paymentData.data.orderCode.toString());
         setPaymentStatus('cancelled');
         if (pollingInterval) {
           clearInterval(pollingInterval);
@@ -170,9 +173,9 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
   };
 
   const openPaymentLink = () => {
-    if (paymentData?.checkoutUrl) {
+    if (paymentData?.data?.checkoutUrl) {
       // alert(234244)
-      window.open(paymentData.checkoutUrl, '_blank');
+      window.open(paymentData.data.checkoutUrl, '_blank');
     }
   };
 
@@ -240,7 +243,7 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-blue-600 dark:text-blue-300">Mã đơn hàng:</span>
-                <span className="font-mono font-semibold">{paymentData.orderCode}</span>
+                <span className="font-mono font-semibold">{paymentData.data.orderCode}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-blue-600 dark:text-blue-300">Số tiền:</span>
@@ -257,11 +260,11 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
           </div>
 
           {/* QR Code Section */}
-          {paymentData.qrCode && (
+          {paymentData.data.qrCode && (
             <div className="text-center">
               <div className="bg-white p-4 rounded-lg inline-block shadow-sm">
                 <QRCode
-                  value={paymentData.qrCode}
+                  value={paymentData.data.qrCode}
                   size={200}
                   level="M"
                   includeMargin={true}
@@ -274,7 +277,7 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
           )}
 
           {/* Bank Transfer Info */}
-          {paymentData.accountNumber && (
+          {paymentData.data.accountNumber && (
             <div className="bg-neutral-50 dark:bg-neutral-800 p-4 rounded-lg space-y-3">
               <h4 className="font-semibold text-neutral-800 dark:text-neutral-200">
                 Thông tin chuyển khoản
@@ -283,19 +286,19 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
                 <div className="flex justify-between items-center">
                   <span>Số tài khoản:</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-semibold">{paymentData.accountNumber}</span>
+                    <span className="font-mono font-semibold">{paymentData.data.accountNumber}</span>
                     <Button 
                       size="small" 
-                      onClick={() => copyToClipboard(paymentData.accountNumber!)}
+                      onClick={() => copyToClipboard(paymentData.data.accountNumber!)}
                     >
                       Sao chép
                     </Button>
                   </div>
                 </div>
-                {paymentData.accountName && (
+                {paymentData.data.accountName && (
                   <div className="flex justify-between">
                     <span>Chủ tài khoản:</span>
-                    <span className="font-semibold">{paymentData.accountName}</span>
+                    <span className="font-semibold">{paymentData.data.accountName}</span>
                   </div>
                 )}
               </div>
@@ -339,11 +342,11 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
         footer={null}
         centered
       >
-        {paymentData?.qrCode && (
+        {paymentData?.data?.qrCode && (
           <div className="text-center p-4">
             <div className="bg-white p-6 rounded-lg inline-block">
               <QRCode
-                value={paymentData.qrCode}
+                value={paymentData.data.qrCode}
                 size={300}
                 level="M"
                 includeMargin={true}

@@ -10,8 +10,17 @@ const { authenticate } = require('../middlewares/authenticate');
 const { authorize } = require('../middlewares/authorize');
 
 // Public routes (no authentication required)
-// PayOS webhook - https://isc-p4t8.onrender.com/api/order/HandleWebhook
+// PayOS webhook - https://isc-p4t8.onrender.com/api/orders/HandleWebhook
 router.post('/HandleWebhook', orderController.handleWebhook);
+router.post('/handlewebhook', orderController.handleWebhook); // lowercase variant
+router.post('/webhook', orderController.handleWebhook); // simple variant
+
+// Debug middleware to log all requests to this route
+router.use((req, res, next) => {
+  console.log(`Order route accessed: ${req.method} ${req.path}`);
+  console.log('Headers:', req.headers);
+  next();
+});
 
 // User routes (authenticated)
 router.use(authenticate);
