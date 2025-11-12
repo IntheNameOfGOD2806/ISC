@@ -2,6 +2,7 @@ const Joi = require('joi');
 
 // Create order validation schema
 const createOrderSchema = Joi.object({
+  
   shippingFirstName: Joi.string().required().messages({
     'string.empty': 'Tên người nhận không được để trống',
     'any.required': 'Tên người nhận là trường bắt buộc',

@@ -312,7 +312,7 @@ const OrdersPage: React.FC = () => {
                             {formatCurrency(order.total)}
                           </p>
                         </div>
-                        {order.paymentStatus && (
+                        {/* {order.paymentStatus && (
                           <span
                             className={`px-2 py-1 text-xs font-medium rounded-full ${
                               paymentStatusColors[order.paymentStatus]
@@ -320,7 +320,7 @@ const OrdersPage: React.FC = () => {
                           >
                             {t(`orders.paymentStatus.${order.paymentStatus}`)}
                           </span>
-                        )}
+                        )} */}
                       </div>
                     </div>
                     <div className="flex gap-2">

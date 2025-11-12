@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Result, Spin } from 'antd';
+import { Button, Result, Spin, message } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { getPayOSOrder } from '@/api/payosApi';
+import { useUpdateOrderStatusMutation } from '@/services/orderApi';
 
 const PaymentResultPage: React.FC = () => {
   const { t } = useTranslation();
@@ -12,6 +13,33 @@ const PaymentResultPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'failed' | 'cancelled' | null>(null);
   const [orderData, setOrderData] = useState<any>(null);
+  const [updateOrderStatus] = useUpdateOrderStatusMutation();
+
+  // Function to update order status in backend
+  const updateBackendOrderStatus = async (orderCode: string, paymentStatus: string) => {
+    try {
+      // Get orderId from localStorage or search params
+      const orderId = searchParams.get('orderId') || localStorage.getItem('currentOrderId');
+      
+      if (orderId && paymentStatus === 'success') {
+        await updateOrderStatus({
+          orderId,
+          status: 'processing', // Update to processing after successful payment
+          paymentStatus: 'paid' // Use 'paid' instead of 'completed' to match the type
+        }).unwrap();
+        
+        message.success('Đã cập nhật trạng thái đơn hàng thành công!');
+        console.log('Order status updated successfully for order:', orderId, 'PayOS orderCode:', orderCode);
+        
+        // Clear stored order ID after successful update
+        localStorage.removeItem('currentOrderId');
+      }
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+      console.error('OrderCode:', orderCode, 'PaymentStatus:', paymentStatus);
+      // Don't show error message to user as payment was successful
+    }
+  };
 
   useEffect(() => {
     const checkPaymentStatus = async () => {
@@ -35,6 +63,8 @@ const PaymentResultPage: React.FC = () => {
           switch (response.data.status) {
             case 'PAID':
               setPaymentStatus('success');
+              // Update order status in backend
+              await updateBackendOrderStatus(orderCode, 'success');
               break;
             case 'CANCELLED':
               setPaymentStatus('cancelled');
@@ -47,6 +77,7 @@ const PaymentResultPage: React.FC = () => {
               // If status from URL params
               if (status === 'PAID') {
                 setPaymentStatus('success');
+                await updateBackendOrderStatus(orderCode, 'success');
               } else if (status === 'CANCELLED') {
                 setPaymentStatus('cancelled');
               } else {
@@ -57,6 +88,7 @@ const PaymentResultPage: React.FC = () => {
           // Fallback to URL params
           if (status === 'PAID') {
             setPaymentStatus('success');
+            await updateBackendOrderStatus(orderCode, 'success');
           } else if (status === 'CANCELLED') {
             setPaymentStatus('cancelled');
           } else {
@@ -72,7 +104,7 @@ const PaymentResultPage: React.FC = () => {
     };
 
     checkPaymentStatus();
-  }, [searchParams]);
+  }, [searchParams, updateOrderStatus]);
 
   const handleGoToOrders = () => {
     navigate('/orders');

@@ -108,6 +108,18 @@ export interface CreateOrderResponse {
   };
 }
 
+export interface UpdateOrderStatusRequest {
+  orderId: string;
+  status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | 'completed';
+}
+
+export interface UpdateOrderStatusResponse {
+  status: string;
+  message: string;
+  data: Order;
+}
+
 export const orderApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // Get user orders with pagination
@@ -138,7 +150,7 @@ export const orderApi = api.injectEndpoints({
         url: `/orders/${id}`,
         method: 'GET',
       }),
-      providesTags: (result, error, id) => [{ type: 'Order', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Order', id }],
     }),
 
     // Get order by number
@@ -147,7 +159,7 @@ export const orderApi = api.injectEndpoints({
         url: `/orders/number/${number}`,
         method: 'GET',
       }),
-      providesTags: (result, error, number) => [{ type: 'Order', id: number }],
+      providesTags: (_result, _error, number) => [{ type: 'Order', id: number }],
     }),
 
     // Create order
@@ -172,7 +184,7 @@ export const orderApi = api.injectEndpoints({
         url: `/orders/${id}/cancel`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'Order', id },
         { type: 'Order', id: 'LIST' },
       ],
@@ -187,8 +199,24 @@ export const orderApi = api.injectEndpoints({
         url: `/orders/${id}/repay`,
         method: 'POST',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'Order', id },
+        { type: 'Order', id: 'LIST' },
+      ],
+    }),
+
+    // Update order status (for admin or system updates)
+    updateOrderStatus: builder.mutation<
+      UpdateOrderStatusResponse,
+      UpdateOrderStatusRequest
+    >({
+      query: ({ orderId, ...statusData }) => ({
+        url: `/orders/admin/${orderId}/status`,
+        method: 'PATCH',
+        body: statusData,
+      }),
+      invalidatesTags: (_result, _error, { orderId }) => [
+        { type: 'Order', id: orderId },
         { type: 'Order', id: 'LIST' },
       ],
     }),
@@ -202,4 +230,5 @@ export const {
   useCreateOrderMutation,
   useCancelOrderMutation,
   useRepayOrderMutation,
+  useUpdateOrderStatusMutation,
 } = orderApi;

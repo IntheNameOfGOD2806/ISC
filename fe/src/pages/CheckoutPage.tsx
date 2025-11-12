@@ -27,6 +27,7 @@ import { cartApi, useGetCartCountQuery } from '@/services/cartApi';
 const CheckoutPage: React.FC = () => {
   const { t } = useTranslation();
   const { items } = useSelector((state: RootState) => state.cart);
+  const [orderCode, setOrderCode] = useState<number | null>(Math.floor(Math.random() * 1000000));
   console.log('items', items)
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
@@ -308,7 +309,7 @@ const CheckoutPage: React.FC = () => {
   };
 
   // Create order
-  const handleCreateOrder = async () => {
+  const handleCreateOrder = async (orderCode: number) => {
     if (!validateForm()) {
       const firstError = document.querySelector('[aria-invalid="true"]');
       if (firstError) {
@@ -319,6 +320,7 @@ const CheckoutPage: React.FC = () => {
 
     try {
       const orderData = {
+        orderCode,
         shippingFirstName: formData.firstName,
         shippingLastName: formData.lastName,
         shippingAddress1: formData.address,
@@ -407,6 +409,15 @@ const CheckoutPage: React.FC = () => {
   };
 
   // Handle creating order for Stripe payment
+  const handleStripeOrderCreationPayos = async (orderCode: number) => {
+    console.log('Creating order for Stripe payment...');
+    const order = await handleCreateOrder(orderCode);
+    console.log('Order created:', order);
+    if (order) {
+      setCurrentOrder(order);
+      console.log('Current order set:', order);
+    }
+  };
   const handleStripeOrderCreation = async () => {
     console.log('Creating order for Stripe payment...');
     const order = await handleCreateOrder();
@@ -416,7 +427,6 @@ const CheckoutPage: React.FC = () => {
       console.log('Current order set:', order);
     }
   };
-
   // Handle form submission for non-Stripe payments
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -866,7 +876,7 @@ const CheckoutPage: React.FC = () => {
                 iconType="arrow-right"
                 isProcessing={isProcessing}
                 processingText="Đang tạo đơn hàng..."
-                onClick={handleStripeOrderCreation} // Reuse the same function for creating order
+                onClick={() => handleStripeOrderCreationPayos(orderCode)} // Reuse the same function for creating order
                 className="w-full mt-6 h-14 text-lg font-semibold"
               >
                 Tạo đơn hàng và thanh toán PayOS

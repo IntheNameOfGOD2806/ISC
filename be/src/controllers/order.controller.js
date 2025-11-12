@@ -18,6 +18,7 @@ const createOrder = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const {
+      orderCode,
       shippingFirstName,
       shippingLastName,
       shippingCompany,
@@ -121,7 +122,7 @@ const createOrder = async (req, res, next) => {
     const year = date.getFullYear().toString().substr(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const count = await Order.count();
-    const orderNumber = `ORD-${year}${month}-${(count + 1).toString().padStart(5, '0')}`;
+    const orderNumber = orderCode+'';
 
     // Create order
     const order = await Order.create(
