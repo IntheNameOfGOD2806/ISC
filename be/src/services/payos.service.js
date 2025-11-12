@@ -95,7 +95,7 @@ class PayOSService {
       // Generate signature
       // const signature = this.generateSignature(paymentData);
 
-      const response = await PayOS.createPaymentLink({
+      const response = await payOS.createPaymentLink({
         ...paymentData,
       });
 
