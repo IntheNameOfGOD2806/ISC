@@ -114,6 +114,12 @@ export interface UpdateOrderStatusRequest {
   paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | 'completed';
 }
 
+export interface UpdateOrderStatusByNumberRequest {
+  orderNumber: string;
+  status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | 'completed';
+}
+
 export interface UpdateOrderStatusResponse {
   status: string;
   message: string;
@@ -220,6 +226,22 @@ export const orderApi = api.injectEndpoints({
         { type: 'Order', id: 'LIST' },
       ],
     }),
+
+    // Update order status by order number (for payment systems)
+    updateOrderStatusByNumber: builder.mutation<
+      UpdateOrderStatusResponse,
+      UpdateOrderStatusByNumberRequest
+    >({
+      query: ({ orderNumber, ...statusData }) => ({
+        url: `/orders/number/${orderNumber}/status`,
+        method: 'PATCH',
+        body: statusData,
+      }),
+      invalidatesTags: (_result, _error, { orderNumber }) => [
+        { type: 'Order', id: orderNumber },
+        { type: 'Order', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -231,4 +253,5 @@ export const {
   useCancelOrderMutation,
   useRepayOrderMutation,
   useUpdateOrderStatusMutation,
+  useUpdateOrderStatusByNumberMutation,
 } = orderApi;

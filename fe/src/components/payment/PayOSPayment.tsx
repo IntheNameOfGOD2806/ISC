@@ -28,7 +28,7 @@ interface PaymentLinkData {
 }
 
 const PayOSPayment: React.FC<PayOSPaymentProps> = ({
-  orderId,
+  orderId: _orderId, // Keep for interface compatibility but don't use
   amount,
   productName,
   description,  
@@ -54,12 +54,14 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
   const createPayment = async () => {
     setLoading(true);
     try {
-        const body = {
-          // random number
-        orderCode: Math.floor(Math.random() * 1000000),
+      // Generate orderCode first
+      const orderCode = Math.floor(Math.random() * 1000000);
+      
+      const body = {
+        orderCode: orderCode,
         description: description,
         // orderId: orderId,
-        amount: 20000,
+        amount: 2000,
         // productName: productName,
         // price: Number(amount),
         // items: [
@@ -69,8 +71,8 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
         //     price: amount
         //   }
         // ],
-        returnUrl: import.meta.env.VITE_RETURN_URL || `${window.location.origin}/checkout/success?orderId=${orderId}`,
-        cancelUrl: import.meta.env.VITE_CANCEL_URL || `${window.location.origin}/checkout/cancel?orderId=${orderId}`,
+        returnUrl: import.meta.env.VITE_RETURN_URL || `${window.location.origin}/checkout/success?orderCode=${orderCode}`,
+        cancelUrl: import.meta.env.VITE_CANCEL_URL || `${window.location.origin}/checkout/cancel?orderCode=${orderCode}`,
       };
 
       console.log('PayOS Payment Body:', body);
@@ -91,9 +93,9 @@ const PayOSPayment: React.FC<PayOSPaymentProps> = ({
         setPaymentData(response.data);
         setPaymentStatus('processing');
         
-        // Store orderId in localStorage for later use in PaymentResultPage
-        localStorage.setItem('currentOrderId', orderId);
-        console.log('Stored orderId in localStorage:', orderId);
+        // Store orderCode in localStorage for later use in PaymentResultPage
+        localStorage.setItem('orderCode', body.orderCode.toString());
+        console.log('Stored orderCode in localStorage:', body.orderCode);
         
         startPolling(response.data.orderCode);
         message.success('Đã tạo link thanh toán thành công!');

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Result, Spin, message } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { getPayOSOrder } from '@/api/payosApi';
-import { useUpdateOrderStatusMutation } from '@/services/orderApi';
+import { useUpdateOrderStatusByNumberMutation } from '@/services/orderApi';
 
 const PaymentResultPage: React.FC = () => {
   const { t } = useTranslation();
@@ -13,26 +13,24 @@ const PaymentResultPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'failed' | 'cancelled' | null>(null);
   const [orderData, setOrderData] = useState<any>(null);
-  const [updateOrderStatus] = useUpdateOrderStatusMutation();
+  const [updateOrderStatusByNumber] = useUpdateOrderStatusByNumberMutation();
 
   // Function to update order status in backend
   const updateBackendOrderStatus = async (orderCode: string, paymentStatus: string) => {
     try {
-      // Get orderId from localStorage or search params
-      const orderId = searchParams.get('orderId') || localStorage.getItem('currentOrderId');
-      
-      if (orderId && paymentStatus === 'success') {
-        await updateOrderStatus({
-          orderId,
+      if (orderCode && paymentStatus === 'success') {
+        // Use orderCode as orderNumber to update the order
+        await updateOrderStatusByNumber({
+          orderNumber: orderCode, // orderCode from PayOS is used as orderNumber in our system
           status: 'processing', // Update to processing after successful payment
           paymentStatus: 'paid' // Use 'paid' instead of 'completed' to match the type
         }).unwrap();
         
         message.success('Đã cập nhật trạng thái đơn hàng thành công!');
-        console.log('Order status updated successfully for order:', orderId, 'PayOS orderCode:', orderCode);
+        console.log('Order status updated successfully for orderNumber:', orderCode);
         
-        // Clear stored order ID after successful update
-        localStorage.removeItem('currentOrderId');
+        // Clear stored order code after successful update
+        localStorage.removeItem('orderCode');
       }
     } catch (error) {
       console.error('Failed to update order status:', error);
@@ -104,7 +102,7 @@ const PaymentResultPage: React.FC = () => {
     };
 
     checkPaymentStatus();
-  }, [searchParams, updateOrderStatus]);
+  }, [searchParams, updateOrderStatusByNumber]);
 
   const handleGoToOrders = () => {
     navigate('/orders');

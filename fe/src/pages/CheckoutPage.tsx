@@ -130,7 +130,7 @@ const CheckoutPage: React.FC = () => {
   const paymentMethods = [
     { value: 'stripe', label: t('checkout.paymentMethod.creditCard') },
     { value: 'payos', label: 'PayOS (Chuyển khoản ngân hàng)' },
-    { value: 'bank_transfer', label: t('checkout.paymentMethod.bankTransfer') },
+    // { value: 'bank_transfer', label: t('checkout.paymentMethod.bankTransfer') },
   ];
 
   // Shipping methods with i18n
@@ -929,18 +929,18 @@ const CheckoutPage: React.FC = () => {
                       </div>
                     )}
                     <div className="text-sm">
-                      Please complete your payment below.
+                      kiểm tra email để thanh toán đơn hàng.
                     </div>
                   </div>
                 </div>
-                <StripePaymentForm
+                {/* <StripePaymentForm
                   amount={parseFloat(currentOrder.total) / 25000} // Convert VND to USD (approximate rate)
                   currency="usd"
                   orderId={currentOrder.id}
                   onSuccess={handlePaymentSuccess}
                   onError={handlePaymentError}
                   onProcessing={handlePaymentProcessing}
-                />
+                /> */}
               </div>
             )}
 

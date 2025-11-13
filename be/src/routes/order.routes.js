@@ -45,4 +45,11 @@ router.patch(
   orderController.updateOrderStatus
 );
 
+// Update order status by order number (for payment systems)
+router.patch(
+  '/number/:number/status',
+  validateRequest(updateOrderStatusSchema),
+  orderController.updateOrderStatusByNumber
+);
+
 module.exports = router;

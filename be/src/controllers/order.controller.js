@@ -522,6 +522,57 @@ const updateOrderStatus = async (req, res, next) => {
 };
 
 /**
+ * Update order status by order number (for payment systems)
+ */
+const updateOrderStatusByNumber = async (req, res, next) => {
+  try {
+    const { number } = req.params;
+    const { status, paymentStatus } = req.body;
+
+    const order = await Order.findOne({
+      where: { number },
+      include: [
+        {
+          association: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'email'],
+        },
+      ],
+    });
+
+    if (!order) {
+      throw new AppError('Không tìm thấy đơn hàng', 404);
+    }
+
+    // Update order status and payment status
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (paymentStatus) updateData.paymentStatus = paymentStatus;
+    
+    await order.update(updateData);
+
+    console.log('Order status updated by number:', {
+      orderNumber: number,
+      orderId: order.id,
+      newStatus: status,
+      newPaymentStatus: paymentStatus
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Cập nhật trạng thái đơn hàng thành công',
+      data: {
+        id: order.id,
+        number: order.number,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Thanh toán lại đơn hàng
  */
 const repayOrder = async (req, res, next) => {
@@ -778,6 +829,7 @@ module.exports = {
   cancelOrder,
   getAllOrders,
   updateOrderStatus,
+  updateOrderStatusByNumber,
   repayOrder,
   handleWebhook,
 };

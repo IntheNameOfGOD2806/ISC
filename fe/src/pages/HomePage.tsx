@@ -47,7 +47,7 @@ const HomePage: React.FC = () => {
 
   // Transform categories for display
   const displayCategories =
-    categories.data?.slice(0, 6).map((category) => ({
+    categories.data?.slice(0, 100).map((category) => ({
       id: category.id,
       name: category.name,
       image: category.image || getCategoryImage(category.name, category.slug),
