@@ -81,8 +81,20 @@ const createOrder = async (req, res, next) => {
 
     // Check stock and calculate totals
     let subtotal = 0;
-    const tax = 0; // Calculate tax if needed
-    const shippingCost = 0; // Calculate shipping if needed
+    
+    // Calculate shipping cost based on payment method and location
+    let shippingCost = 0;
+    if (paymentMethod === 'cod') {
+      // COD shipping fee
+      shippingCost = 30000; // 30,000 VND for COD
+    } else {
+      // Free shipping for online payments
+      shippingCost = 0;
+    }
+    
+    // Calculate tax (VAT 10%)
+    let tax = 0;
+    
     const discount = 0; // Apply discount if needed
 
     for (const item of cart.items) {
@@ -114,6 +126,9 @@ const createOrder = async (req, res, next) => {
       subtotal += price * item.quantity;
     }
 
+    // Calculate tax (VAT 10% on subtotal)
+    tax = Math.round(subtotal * 0.1);
+    
     // Calculate total
     const total = subtotal + tax + shippingCost - discount;
 
@@ -241,6 +256,11 @@ const createOrder = async (req, res, next) => {
       orderNumber: order.number,
       orderDate: order.createdAt,
       total: order.total,
+      subtotal: order.subtotal,
+      tax: order.tax,
+      shippingCost: order.shippingCost,
+      discount: order.discount,
+      paymentMethod: order.paymentMethod,
       items: orderItems.map((item) => ({
         name: item.name,
         quantity: item.quantity,

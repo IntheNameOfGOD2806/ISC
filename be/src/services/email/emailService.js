@@ -89,7 +89,18 @@ const sendResetPasswordEmail = async (email, token) => {
 
 // Send order confirmation email
 const sendOrderConfirmationEmail = async (email, order) => {
-  const { orderNumber, orderDate, total, items, shippingAddress } = order;
+  const { 
+    orderNumber, 
+    orderDate, 
+    total, 
+    subtotal, 
+    tax, 
+    shippingCost, 
+    discount, 
+    paymentMethod,
+    items, 
+    shippingAddress 
+  } = order;
 
   // Format items HTML
   const itemsHtml = items
@@ -134,11 +145,46 @@ const sendOrderConfirmationEmail = async (email, order) => {
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="3" style="padding: 10px; text-align: right;"><strong>Tổng cộng:</strong></td>
-              <td style="padding: 10px; text-align: right;"><strong>${total.toLocaleString('vi-VN')}đ</strong></td>
+              <td colspan="3" style="padding: 10px; text-align: right; border-top: 1px solid #ddd;">Tạm tính:</td>
+              <td style="padding: 10px; text-align: right; border-top: 1px solid #ddd;">${subtotal.toLocaleString('vi-VN')}đ</td>
+            </tr>
+            ${shippingCost > 0 ? `
+            <tr>
+              <td colspan="3" style="padding: 10px; text-align: right;">Phí vận chuyển:</td>
+              <td style="padding: 10px; text-align: right;">${shippingCost.toLocaleString('vi-VN')}đ</td>
+            </tr>
+            ` : ''}
+            ${tax > 0 ? `
+            <tr>
+              <td colspan="3" style="padding: 10px; text-align: right;">Thuế:</td>
+              <td style="padding: 10px; text-align: right;">${tax.toLocaleString('vi-VN')}đ</td>
+            </tr>
+            ` : ''}
+            ${discount > 0 ? `
+            <tr>
+              <td colspan="3" style="padding: 10px; text-align: right;">Giảm giá:</td>
+              <td style="padding: 10px; text-align: right; color: #e74c3c;">-${discount.toLocaleString('vi-VN')}đ</td>
+            </tr>
+            ` : ''}
+            <tr style="border-top: 2px solid #333;">
+              <td colspan="3" style="padding: 15px 10px; text-align: right;"><strong>Tổng cộng:</strong></td>
+              <td style="padding: 15px 10px; text-align: right;"><strong style="font-size: 18px; color: #e74c3c;">${total.toLocaleString('vi-VN')}đ</strong></td>
             </tr>
           </tfoot>
         </table>
+        
+        <h3>Thông tin thanh toán</h3>
+        <div style="background-color: #f9f9f9; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <p><strong>Phương thức thanh toán:</strong> ${paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng (COD)' : 
+            paymentMethod === 'stripe' ? 'Thẻ tín dụng/Ghi nợ' : 
+            paymentMethod === 'payos' ? 'Chuyển khoản ngân hàng (PayOS)' : 
+            paymentMethod === 'bank_transfer' ? 'Chuyển khoản ngân hàng' : paymentMethod}</p>
+          ${paymentMethod === 'cod' ? `
+          <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 4px; margin-top: 10px;">
+            <p style="margin: 0; color: #856404;"><strong>Lưu ý:</strong> Bạn sẽ thanh toán <strong>${total.toLocaleString('vi-VN')}đ</strong> (đã bao gồm phí ship và thuế) khi nhận hàng.</p>
+          </div>
+          ` : ''}
+        </div>
         
         <h3>Địa chỉ giao hàng</h3>
         <div style="background-color: #f9f9f9; padding: 15px; margin: 20px 0; border-radius: 4px;">
