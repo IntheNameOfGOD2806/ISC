@@ -118,11 +118,26 @@ const createOrder = async (req, res, next) => {
     const total = subtotal + tax + shippingCost - discount;
 
     // Generate order number
-    const date = new Date();
-    const year = date.getFullYear().toString().substr(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const count = await Order.count();
-    const orderNumber = orderCode+'';
+    let orderNumber;
+    if (orderCode) {
+      // Use provided orderCode as order number
+      orderNumber = orderCode.toString();
+      console.log('Using provided orderCode as order number:', orderNumber);
+    } else {
+      // Generate traditional order number if no orderCode provided
+      const date = new Date();
+      const year = date.getFullYear().toString().substr(-2);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const count = await Order.count();
+      orderNumber = `ORD-${year}${month}-${(count + 1).toString().padStart(5, '0')}`;
+      console.log('Generated traditional order number:', orderNumber);
+    }
+
+    // Check if order number already exists
+    const existingOrder = await Order.findOne({ where: { number: orderNumber } });
+    if (existingOrder) {
+      throw new AppError(`Order number ${orderNumber} already exists`, 400);
+    }
 
     // Create order
     const order = await Order.create(

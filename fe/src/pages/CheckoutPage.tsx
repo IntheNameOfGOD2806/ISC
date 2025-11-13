@@ -420,7 +420,7 @@ const CheckoutPage: React.FC = () => {
   };
   const handleStripeOrderCreation = async () => {
     console.log('Creating order for Stripe payment...');
-    const order = await handleCreateOrder();
+    const order = await handleCreateOrder(orderCode!); // Pass orderCode for Stripe payments too
     console.log('Order created:', order);
     if (order) {
       setCurrentOrder(order);
@@ -438,7 +438,7 @@ const CheckoutPage: React.FC = () => {
     }
 
     // For other payment methods, handle differently
-    const order = await handleCreateOrder();
+    const order = await handleCreateOrder(orderCode!);
     if (order) {
       dispatch(
         addNotification({
