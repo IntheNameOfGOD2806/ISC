@@ -130,65 +130,68 @@ const CartItem: React.FC<CartItemProps> = ({ item, isCheckout = false }) => {
         {/* Quantity controls */}
         <div className="mt-2 flex justify-between items-center">
           {!isCheckout ? (
-            <div className="flex items-center">
-              <button
-                onClick={() => handleQuantityChange(item.quantity - 1)}
-                disabled={isUpdating || item.quantity <= 1}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Decrease quantity"
-              >
-                {isUpdating ? (
-                  <div className="w-3 h-3 border border-neutral-400 border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M20 12H4"
-                    />
-                  </svg>
-                )}
-              </button>
-              <span className="mx-3 w-8 text-center">{item.quantity}</span>
-              <button
-                onClick={() => handleQuantityChange(item.quantity + 1)}
-                disabled={
-                  isUpdating ||
-                  !!(item.stockQuantity && item.quantity >= item.stockQuantity)
-                }
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Increase quantity"
-              >
-                {isUpdating ? (
-                  <div className="w-3 h-3 border border-neutral-400 border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
+            // <div className="flex items-center">
+            //   <button
+            //     onClick={() => handleQuantityChange(item.quantity - 1)}
+            //     disabled={isUpdating || item.quantity <= 1}
+            //     className="w-8 h-8 flex items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            //     aria-label="Decrease quantity"
+            //   >
+            //     {isUpdating ? (
+            //       <div className="w-3 h-3 border border-neutral-400 border-t-transparent rounded-full animate-spin"></div>
+            //     ) : (
+            //       <svg
+            //         xmlns="http://www.w3.org/2000/svg"
+            //         className="h-4 w-4"
+            //         fill="none"
+            //         viewBox="0 0 24 24"
+            //         stroke="currentColor"
+            //       >
+            //         <path
+            //           strokeLinecap="round"
+            //           strokeLinejoin="round"
+            //           strokeWidth={2}
+            //           d="M20 12H4"
+            //         />
+            //       </svg>
+            //     )}
+            //   </button>
+            //   <span className="mx-3 w-8 text-center">{item.quantity}</span>
+            //   <button
+            //     onClick={() => handleQuantityChange(item.quantity + 1)}
+            //     disabled={
+            //       isUpdating ||
+            //       !!(item.stockQuantity && item.quantity >= item.stockQuantity)
+            //     }
+            //     className="w-8 h-8 flex items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            //     aria-label="Increase quantity"
+            //   >
+            //     {isUpdating ? (
+            //       <div className="w-3 h-3 border border-neutral-400 border-t-transparent rounded-full animate-spin"></div>
+            //     ) : (
+            //       <svg
+            //         xmlns="http://www.w3.org/2000/svg"
+            //         className="h-4 w-4"
+            //         fill="none"
+            //         viewBox="0 0 24 24"
+            //         stroke="currentColor"
+            //       >
+            //         <path
+            //           strokeLinecap="round"
+            //           strokeLinejoin="round"
+            //           strokeWidth={2}
+            //           d="M12 4v16m8-8H4"
+            //         />
+            //       </svg>
+            //     )}
+            //   </button>
+            // </div>
+            <> <div className="text-sm text-neutral-600 dark:text-neutral-400">
+              Số lượng: {item.quantity}
+            </div></>
           ) : (
             <div className="text-sm text-neutral-600 dark:text-neutral-400">
-              Quantity: {item.quantity}
+              Số lượng: {item.quantity}
             </div>
           )}
 
